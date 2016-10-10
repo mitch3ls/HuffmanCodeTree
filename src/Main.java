@@ -1,8 +1,7 @@
 
 public class Main {
     public static void main(String[] args) {
-        CodeTree tree = (CodeTree) TreeBuilder.generateTree("MISSISSIPPI");
-        System.out.println(tree.createTable());
+        CodeTree tree = (CodeTree) CodeTree.generateTree("MISSISSIPPI");
 
         String code = tree.encode("MISSISSIPPI");
 

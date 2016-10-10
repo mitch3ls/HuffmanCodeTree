@@ -1,44 +1,61 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class CodeTree extends TreeNode {
-    private TreeNode left;
-    private TreeNode right;
+    private TreeNode zero;
+    private TreeNode one;
 
-    public CodeTree(TreeNode left, TreeNode right) {
-        this.left = left;
-        this.left.setParent(this);
-        this.right = right;
-        this.right.setParent(this);
+    public CodeTree(TreeNode zero, TreeNode one) {
+        this.zero = zero;
+        this.zero.setParent(this);
+        this.one = one;
+        this.one.setParent(this);
+    }
+
+    public static TreeNode generateTree(String message) {
+        final Set<Character> chars = new LinkedHashSet<>();
+        for (char character : message.toCharArray()) {
+            chars.add(character);
+        }
+
+        ArrayList<TreeNode> nodes = new ArrayList<>();
+        chars.forEach(character -> nodes.add(new CodeValue(character, message)));
+
+        while(nodes.size() > 1) {
+            Collections.sort(nodes);
+
+            TreeNode last = nodes.get(nodes.size() - 1);
+            TreeNode secondLast = nodes.get(nodes.size() - 2);
+
+            nodes.remove(last);
+            nodes.remove(secondLast);
+
+            nodes.add(new CodeTree(last, secondLast));
+        }
+
+        return nodes.get(0);
     }
 
     public int getOccurrences(String message) {
-        return left.getOccurrences(message) + right.getOccurrences(message);
+        return zero.getOccurrences(message) + one.getOccurrences(message);
     }
 
     public int getOccurrences() {
-        return left.getOccurrences() + right.getOccurrences();
-    }
-
-    @Override
-    public String toString() {
-        return "<0>\n" + left + "\n</0>\n" +
-                "<1>\n" + right + "\n</1>";
+        return zero.getOccurrences() + one.getOccurrences();
     }
 
     @Override
     public Map createTable() {
         Map<Character, String> table = new HashMap<>();
 
-        table.putAll(left.createTable());
-        table.putAll(right.createTable());
+        table.putAll(zero.createTable());
+        table.putAll(one.createTable());
 
         return table;
     }
 
     public String getCode(TreeNode node) {
-        if (parent == null) return ((node == left) ? "0" : "1");
-        return parent.getCode(this) + ((node == left) ? "0" : "1");
+        if (parent == null) return ((node == zero) ? "0" : "1");
+        return parent.getCode(this) + ((node == zero) ? "0" : "1");
     }
 
     public String encode(String message) {
@@ -61,7 +78,7 @@ public class CodeTree extends TreeNode {
 
         char firstDigit = encodedMessage.toCharArray()[0];
 
-        if (firstDigit == '0') return left.decode(encodedMessage.substring(1), caller);
-        else return right.decode(encodedMessage.substring(1), caller);
+        if (firstDigit == '0') return zero.decode(encodedMessage.substring(1), caller);
+        else return one.decode(encodedMessage.substring(1), caller);
     }
 }
